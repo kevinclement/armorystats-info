@@ -10,6 +10,12 @@
 	"observability": {
 		"enabled": true
 	},
+	"routes": [
+		{
+		  "pattern": "*armorystats.info/*",
+		  "zone_name": "armorystats.info"
+		}
+	  ],
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
