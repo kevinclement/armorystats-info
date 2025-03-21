@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "throbbing-field-9ef9",
+	"name": "armorystats",
 	"main": "src/index.js",
 	"compatibility_date": "2025-03-20",
 	"observability": {
