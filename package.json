@@ -6,11 +6,15 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
+		"preview":"wrangler versions upload",
 		"test": "vitest"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.7.5",
 		"vitest": "~3.0.7",
 		"wrangler": "^4.3.0"
+	},
+	"dependencies": {
+		"@microlabs/otel-cf-workers": "^1.0.0-rc.49"
 	}
 }

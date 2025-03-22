@@ -7,6 +7,7 @@
 	"name": "armorystats",
 	"main": "src/index.js",
 	"compatibility_date": "2025-03-20",
+	"compatibility_flags": [ "nodejs_compat" ],	
 	"observability": {
 		"enabled": true
 	},
@@ -36,7 +37,8 @@
 	 "vars": { 
 		"access_token":"",
 		"access_token_expires": "",
-		"access_token_expires_date": ""
+		"access_token_expires_date": "",
+		"SERVICE_NAME":"armorystats",
 	// // 	"CLIENT_ID": "1781d9a5427e43e6ada3979925e1ce98",
 	// // 	"CLIENT_SECRET": "STORED_IN_DEV_VARS_FILE_NOT_CHECKED_IN" 
 	 },

@@ -7,15 +7,19 @@
  *
  * Learn more at https://developers.cloudflare.com/workers/
  */
+import { instrument } from "@microlabs/otel-cf-workers"
 
-export default {
+
+
+const handler = {
 	async fetch(request, env, ctx) {
+		
 		let client_id = `${env.CLIENT_ID}`
 		let client_secret = `${env.CLIENT_SECRET}`
 
 		let auth = btoa(client_id + ":" + client_secret).toString('base64')
 
-		let debug = "";
+		let debug = env.SERVICE_NAME;
 		var now = new Date();
 		let usedCachedToken = false;
 
@@ -44,12 +48,12 @@ export default {
 			env.access_token_expires_date = new Date(env.access_token_expires);		
 			
 			console.log(`got json: ${json.access_token} token: ${env.access_token} expires: ${env.access_token_expires} date: ${env.access_token_expires_date}`);
-			debug = `FRESH: ${env.access_token_expires_date}`;
+			debug += `FRESH: ${env.access_token_expires_date}`;
 								
 		} else {
 			usedCachedToken = true;
 			console.log(`using cached token: ${env.access_token} expires: ${env.access_token_expires} date: ${env.access_token_expires_date}`)
-			debug = `EXISTING: ${env.access_token_expires_date}`;
+			debug += `EXISTING: ${env.access_token_expires_date}`;
 	  	}
 
 		let url_match = null;
@@ -73,14 +77,34 @@ export default {
 	 	
 		console.log(`region: ${region} realm: ${realm} character: ${character} site: ${site}`)
 		let url = `https://${region}.api.blizzard.com/profile/wow/character/${realm}/${character}${site}?namespace=profile-${region}`;
-		let resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + env.access_token } } )
+		try {
+			let resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + env.access_token } } )
+			let api_response = new Response(resp.body, resp);
 		
-		let api_response = new Response(resp.body, resp);
-		
-		// Add CORS so we can call it from our site
-		api_response.headers.set("Access-Control-Allow-Origin", "*")
-		api_response.headers.set("X-Debug", debug)
-		
-		return api_response		
+			if (resp.status == 530) {
+				console.error('530' + resp.body);
+			}
+			// Add CORS so we can call it from our site
+			api_response.headers.set("Access-Control-Allow-Origin", "*")
+			api_response.headers.set("X-Debug", debug)
+			
+			return api_response
+
+		} catch (error) {
+			console.error(error)
+			return new Response('Internal Server Error', { status: 500, statusText: 'Internal Server Error' });
+		}		
 	},
 };
+
+const config = (env, _trigger) => {
+	return {
+	  exporter: {
+		url: "https://otel.baselime.io/v1",
+		headers: { "x-api-key": env.BASELIME_API_KEY }
+	  },
+	  service: { name: env.SERVICE_NAME }
+	}
+  }
+  
+export default instrument(handler, config)
